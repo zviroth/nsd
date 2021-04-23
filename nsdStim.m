@@ -23,13 +23,16 @@ isub=1;
 
 interpImgSize = 714;
 backgroundSize = 1024;
+imgScaling = 0.5;
+
 
 %%
 normResp=0;
 % construct quad frequency filters
-numOrientations = 4;
+numOrientations = 8;
 bandwidth = 1;
 dims = [backgroundSize backgroundSize];
+dims = dims*imgScaling;
 numLevels = maxLevel(dims,bandwidth);
 [freqRespsImag, freqRespsReal, pind] = makeQuadFRs(dims, numLevels, numOrientations, bandwidth);
 
@@ -63,6 +66,9 @@ fixPoint(1,1,:) = single([255 0 0]);
 
 % pyramidfolder = '~/NSD/stimuli/pyramid/';
 pyramidfolder = ['/Volumes/nsd_sub' num2str(isub) '/pyramid/'];
+
+pyramidfolder = '~/NSD/try/';
+
 
 iimg=0;
 for imgNum=allImgs%1:1000%105:216
@@ -101,7 +107,10 @@ for imgNum=allImgs%1:1000%105:216
         % for now, simply by averaging across RGB channels
         bigImg = mean(bigImg,3);
         bigImg = single(bigImg);
+
         
+        %DOWNSAMPLE
+        bigImg = imresize(bigImg,imgScaling);
         %% pass image through steerable pyramid
 
         [pyr, pind] = buildQuadBands(bigImg, freqRespsImag, freqRespsReal);
@@ -124,15 +133,9 @@ for imgNum=allImgs%1:1000%105:216
             end
             %     sumOri{iLev}(:,:) = temp;
         end
-        % for iLev = 1:numLevels
-        %     levMean(iLev) = mean(abs(sumOri{iLev}(:)));
-        %     levMax(iLev) = max(abs(sumOri{iLev}(:)));
-        % end
-        % [temp maxlev] = max(levMax);
-        % maxlev
         
-        save(fullfile(pyramidfolder, pyramidfilename), 'interpImgSize','backgroundSize','numOrientations',...
-            'bandwidth','dims','bigImg','sumOri','modelOri','numLevels','normResp');
+        save(fullfile(pyramidfolder, pyramidfilename), 'interpImgSize','backgroundSize','imgScaling',...
+            'numOrientations','bandwidth','dims','bigImg','sumOri','modelOri','numLevels','normResp');
     end
 end
 toc
