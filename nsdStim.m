@@ -25,6 +25,8 @@ interpImgSize = 714;
 backgroundSize = 1024;
 imgScaling = 0.5;
 
+% pyramidfolder = '~/NSD/stimuli/pyramid/';
+pyramidfolder = ['/Volumes/nsd_sub' num2str(isub) '/pyramid/'];%to save model outputs
 
 %%
 normResp=0;
@@ -64,10 +66,6 @@ imgNum = 1;
 tic
 fixPoint(1,1,:) = single([255 0 0]);
 
-% pyramidfolder = '~/NSD/stimuli/pyramid/';
-pyramidfolder = ['/Volumes/nsd_sub' num2str(isub) '/pyramid/'];
-
-pyramidfolder = '~/NSD/try/';
 
 
 iimg=0;
