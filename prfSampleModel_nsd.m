@@ -40,8 +40,8 @@ switch visualRegion
         rois=7;
 end
 
-pixPerDeg = 714/8.4;%=85
-degPerPix = 8.4/714;
+pixPerDeg = imgScaling*714/8.4;%=85
+degPerPix = 8.4/(714*imgScaling);
 x = -backgroundSize/2+0.5:backgroundSize/2-0.5;%correct?
 y = -backgroundSize/2+0.5:backgroundSize/2-0.5;
 [X,Y] = meshgrid(x,y);
