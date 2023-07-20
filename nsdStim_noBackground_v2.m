@@ -1,3 +1,6 @@
+%version 2: make stimuli 512x512 without background (instead of 378x378) so
+%that pyramid works well.
+
 close all
 clear all
 
@@ -5,7 +8,7 @@ interpImgSize = 714;
 backgroundSize = 1024;
 imgScaling = 0.5;
 
-pyramidfolder = '/misc/data18/rothzn/nsd/stimuli/pyramid/';%to save model outputs
+pyramidfolder = '/misc/data18/rothzn/nsd/stimuli/pyramid_noBackground_v3/';%to save model outputs
 
 %%
 normResp=0;
@@ -13,6 +16,7 @@ normResp=0;
 numOrientations = 8;
 bandwidth = 1;
 dims = [backgroundSize backgroundSize];
+% dims = [interpImgSize interpImgSize];
 dims = dims*imgScaling;
 numLevels = maxLevel(dims,bandwidth);
 [freqRespsImag, freqRespsReal, pind] = makeQuadFRs(dims, numLevels, numOrientations, bandwidth);
@@ -33,7 +37,7 @@ allImgs = nsdDesign.sharedix; %indices of the shared 1000 images
 % nsdDesign.masterordering;%for each of 30000 trials, what is corresponding image (out of 10000 images)
 
 
-for isub=[6:8]
+for isub=[1:8]
     
     
     allImgs = nsdDesign.subjectim(isub,nsdDesign.masterordering);%indices of all 10000 images used for this subject
@@ -58,19 +62,25 @@ for isub=[6:8]
             origImg = double(origImg);
             origImg = permute(origImg,[3 2 1]);%[425,425,3]
             
-            [Xq, Yq] = meshgrid(linspace(1,imgSizeX, interpImgSize), linspace(1,imgSizeY, interpImgSize));
+%             [Xq, Yq] = meshgrid(linspace(1,imgSizeX, interpImgSize), linspace(1,imgSizeY, interpImgSize));
+            [Xq, Yq] = meshgrid(linspace(1,imgSizeX, backgroundSize), linspace(1,imgSizeY, backgroundSize));
             for irgb=1:3
                 interpImg(:,:,irgb) = interp2(squeeze(origImg(:,:,irgb)), Xq, Yq);
             end
             %add red semi-transparent fixation point
             
-            interpImg(interpImgSize/2-8:interpImgSize/2+8,interpImgSize/2-8:interpImgSize/2+8,:) = ...
-                (interpImg(interpImgSize/2-8:interpImgSize/2+8,interpImgSize/2-8:interpImgSize/2+8,:) + ...
-                repmat(fixPoint,17,17,1))/2;
+%             interpImg(interpImgSize/2-8:interpImgSize/2+8,interpImgSize/2-8:interpImgSize/2+8,:) = ...
+%                 (interpImg(interpImgSize/2-8:interpImgSize/2+8,interpImgSize/2-8:interpImgSize/2+8,:) + ...
+%                 repmat(fixPoint,17,17,1))/2;
+
+%                         interpImg(backgroundSize/2-8:backgroundSize/2+8,backgroundSize/2-8:backgroundSize/2+8,:) = ...
+%                 (interpImg(backgroundSize/2-8:backgroundSize/2+8,backgroundSize/2-8:backgroundSize/2+8,:) + ...
+%                 repmat(fixPoint,17,17,1))/2;
             
             %%add background
-            bigImg = repmat(backgroundColor,backgroundSize,backgroundSize,1);
-            bigImg(1+backgroundSize/2-interpImgSize/2 : backgroundSize/2+interpImgSize/2, 1+backgroundSize/2-interpImgSize/2 : backgroundSize/2+interpImgSize/2,:) = interpImg(:,:,:);
+%             bigImg = repmat(backgroundColor,backgroundSize,backgroundSize,1);
+%             bigImg(1+backgroundSize/2-interpImgSize/2 : backgroundSize/2+interpImgSize/2, 1+backgroundSize/2-interpImgSize/2 : backgroundSize/2+interpImgSize/2,:) = interpImg(:,:,:);
+            bigImg = interpImg;
             
             %axis image
             % colormap gray

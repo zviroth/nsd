@@ -5,10 +5,11 @@ interpImgSize = 714;
 backgroundSize = 1024;
 imgScaling = 0.5;
 
-pyramidfolder = '/misc/data18/rothzn/nsd/stimuli/pyramid/';%to save model outputs
+normResp=0;
+pyramidfolder = '/misc/data18/rothzn/nsd/stimuli/pyramid_norm/';%to save model outputs
 
 %%
-normResp=0;
+
 % construct quad frequency filters
 numOrientations = 8;
 bandwidth = 1;
@@ -33,7 +34,7 @@ allImgs = nsdDesign.sharedix; %indices of the shared 1000 images
 % nsdDesign.masterordering;%for each of 30000 trials, what is corresponding image (out of 10000 images)
 
 
-for isub=[6:8]
+for isub=[6 7 1:5 8]
     
     
     allImgs = nsdDesign.subjectim(isub,nsdDesign.masterordering);%indices of all 10000 images used for this subject
@@ -98,7 +99,14 @@ for isub=[6:8]
                         nEnergies = normEnergies(pyr,pind,numOrientations,0.1);
                         thisBand = abs(accessSteerBand(nEnergies,pind,numOrientations,ilev,orientation));
                     else
-                        thisBand = abs(accessSteerBand(pyr, pind, numOrientations,ilev, orientation)).^2;
+%                         thisBand = abs(accessSteerBand(pyr, pind, numOrientations,ilev, orientation)).^2;
+
+
+
+                        thisBand = abs(accessSteerBand(pyr, pind, numOrientations,ilev, orientation));
+
+
+
                     end
                     sumOri{ilev}(:,:) = sumOri{ilev}(:,:) + thisBand;
                     modelOri{ilev}(orientation,:,:) = thisBand;

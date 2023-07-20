@@ -5,7 +5,7 @@
 close all
 clear all
 tic
-bandpass = 1; bandMin = 3; bandMax = 6;
+bandpass = 1; bandMin = 1; bandMax = 6;
 
 isub=1;
 

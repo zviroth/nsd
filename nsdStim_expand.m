@@ -1,3 +1,7 @@
+%expanded model for Representational Drift. Includes 2 additional filters,
+%for highest and lowest spatial frequencies, but with no orientation
+%tuning.
+%also uses sqrt instead of filter energy.
 close all
 clear all
 
@@ -5,18 +9,19 @@ interpImgSize = 714;
 backgroundSize = 1024;
 imgScaling = 0.5;
 
-pyramidfolder = '/misc/data18/rothzn/nsd/stimuli/pyramid/';%to save model outputs
+normResp=0;
+pyramidfolder = '/misc/data18/rothzn/nsd/stimuli/pyramid_expand/';%to save model outputs
 
 %%
-normResp=0;
+
 % construct quad frequency filters
 numOrientations = 8;
 bandwidth = 1;
 dims = [backgroundSize backgroundSize];
 dims = dims*imgScaling;
 numLevels = maxLevel(dims,bandwidth);
-[freqRespsImag, freqRespsReal, pind] = makeQuadFRs(dims, numLevels, numOrientations, bandwidth);
-
+% [freqRespsImag, freqRespsReal, pind] = makeQuadFRs(dims, numLevels, numOrientations, bandwidth);
+[freqResps, pind] = makeSteerFRs(dims, numLevels, numOrientations, bandwidth);
 %%
 stimfolder = '/misc/data18/rothzn/nsd/stimuli/';
 stimfilename = fullfile(stimfolder,'nsd_stimuli.hdf5');%[3 1360 714 220]
@@ -33,7 +38,7 @@ allImgs = nsdDesign.sharedix; %indices of the shared 1000 images
 % nsdDesign.masterordering;%for each of 30000 trials, what is corresponding image (out of 10000 images)
 
 
-for isub=[6:8]
+for isub=1:8
     
     
     allImgs = nsdDesign.subjectim(isub,nsdDesign.masterordering);%indices of all 10000 images used for this subject
@@ -85,9 +90,9 @@ for isub=[6:8]
             bigImg = imresize(bigImg,imgScaling);
             %% pass image through steerable pyramid
             
-            [pyr, pind] = buildQuadBands(bigImg, freqRespsImag, freqRespsReal);
-            sumOri = cell(numLevels,1);
-            modelOri = cell(numLevels,1);
+            [pyr, pind] = buildSteerBands(bigImg, freqResps);
+            sumOri = cell(numLevels+2,1);
+            modelOri = cell(numLevels+2,1);
             for ilev = 1:numLevels
                 % loop over levels and orientations of the pyramid
                 % initialize output
@@ -98,13 +103,25 @@ for isub=[6:8]
                         nEnergies = normEnergies(pyr,pind,numOrientations,0.1);
                         thisBand = abs(accessSteerBand(nEnergies,pind,numOrientations,ilev,orientation));
                     else
-                        thisBand = abs(accessSteerBand(pyr, pind, numOrientations,ilev, orientation)).^2;
+%                         thisBand = abs(accessSteerBand(pyr, pind, numOrientations,ilev, orientation)).^2;
+                        thisBand = abs(accessSteerBand(pyr, pind, numOrientations,ilev, orientation));
                     end
                     sumOri{ilev}(:,:) = sumOri{ilev}(:,:) + thisBand;
                     modelOri{ilev}(orientation,:,:) = thisBand;
                 end
             end
+            % ADD LOWEST SPATIAL FREQUENCY
+            thisBand = abs(pyrLow(pyr,pind));
+%             thisBand = abs(pyrLow(freqResps,pind)).^2;
+            sumOri{numLevels+1} = thisBand;
+            modelOri{numLevels+1} = thisBand;
             
+            % ADD HIGHEST SPATIAL FREQUENCY
+            thisBand = abs(pyrHi(pyr,pind));
+%           thisBand = abs(pyrHi(freqResps,pind)).^2;
+            sumOri{numLevels+2} = thisBand;
+            modelOri{numLevels+2} = thisBand;
+
             save(fullfile(pyramidfolder, pyramidfilename), 'interpImgSize','backgroundSize','imgScaling',...
                 'numOrientations','bandwidth','dims','bigImg','sumOri','modelOri','numLevels','normResp');
         end

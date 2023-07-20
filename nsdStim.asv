@@ -70,6 +70,7 @@ for isub=[6:8]
             
             %%add background
             bigImg = repmat(backgroundColor,backgroundSize,backgroundSize,1);
+            
             bigImg(1+backgroundSize/2-interpImgSize/2 : backgroundSize/2+interpImgSize/2, 1+backgroundSize/2-interpImgSize/2 : backgroundSize/2+interpImgSize/2,:) = interpImg(:,:,:);
             
             %axis image
@@ -107,6 +108,8 @@ for isub=[6:8]
             
             save(fullfile(pyramidfolder, pyramidfilename), 'interpImgSize','backgroundSize','imgScaling',...
                 'numOrientations','bandwidth','dims','bigImg','sumOri','modelOri','numLevels','normResp');
+            
+            
         end
     end
 end
